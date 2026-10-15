@@ -1,14 +1,37 @@
-name: iOS oluştur
+name: iOS Build
 
 on:
   push:
-  workflow_dispatch:
+    branches:
+      - main # Hangi dalda çalışacağını projenize göre ayarlayabilirsiniz
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-latest # iOS derlemesi için macOS sunucusu şarttır
+
     steps:
-      - uses: actions/checkout@v4
-      
-      # Projenizin altyapısına göre bağımlılıkların kurulması 
-      # ve derleme (xcodebuild) komutları bu satırdan sonra eklenecektir.
+      - name: Depoyu Klonla
+        uses: actions/checkout@v4
+
+      - name: Flutter Kurulumu
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Bağımlılıkları İndir
+        run: flutter pub get
+
+      - name: iOS Uygulamasını Derle (İmzasız)
+        run: flutter build ios --release --no-codesign
+
+      - name: Sideload İçin IPA Formatına Çevir
+        run: |
+          mkdir -p Payload
+          mv build/ios/iphoneos/Runner.app Payload/
+          zip -r -q app.ipa Payload
+
+      - name: İndirilebilir Çıktı (Artifact) Olarak Yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: iOS-Uygulamasi
+          path: app.ipa
