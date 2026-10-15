@@ -1,0 +1,14 @@
+name: iOS oluştur
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Projenizin altyapısına göre bağımlılıkların kurulması 
+      # ve derleme (xcodebuild) komutları bu satırdan sonra eklenecektir.
